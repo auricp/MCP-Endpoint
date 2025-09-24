@@ -16,6 +16,9 @@ COPY . .
 RUN if [ -d "mcp-client-bedrock" ]; then cd mcp-client-bedrock && npm install && npm run build; fi
 RUN if [ -d "mcp-dynamo" ]; then cd mcp-dynamo && npm install && npm run build; fi
 
+# Debug: List the build directory contents
+RUN if [ -d "mcp-client-bedrock/build" ]; then ls -la mcp-client-bedrock/build/; fi
+
 # Expose the port
 EXPOSE 3000
 

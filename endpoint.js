@@ -2,21 +2,21 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 
-// Import MCP logic from compiled TypeScript
-const { initMCPClient, mcpProcessQuery } = require('./mcp-client-bedrock/build/index.js');
-
 const app = express();
 app.use(bodyParser.json());
 
 let mcpReady = false;
+let mcpModule = null;
 
 // Initialize MCP client once at startup
 (async () => {
     try {
-        // You may want to make these configurable via env or args
+        // Use dynamic import for ES module
+        mcpModule = await import('./mcp-client-bedrock/build/index.js');
+        
         const serverScriptPath = path.resolve(__dirname, './mcp-dynamo/dist/index.js');
         const inferenceProfileId = process.env.INFERENCE_PROFILE_ID;
-        await initMCPClient(serverScriptPath, inferenceProfileId);
+        await mcpModule.initMCPClient(serverScriptPath, inferenceProfileId);
         mcpReady = true;
         console.log("MCP client initialized.");
     } catch (err) {
@@ -25,7 +25,7 @@ let mcpReady = false;
 })();
 
 app.post('/query', async (req, res) => {
-    if (!mcpReady) {
+    if (!mcpReady || !mcpModule) {
         return res.status(503).json({ error: 'MCP client not ready.' });
     }
     const { query } = req.body;
@@ -34,7 +34,7 @@ app.post('/query', async (req, res) => {
     }
     try {
         // Capture both the result and any execution details
-        const result = await mcpProcessQuery(query, true); // stateless mode
+        const result = await mcpModule.mcpProcessQuery(query, true); // stateless mode
         
         // If the MCP client returns structured data, pass it through
         // Otherwise, wrap the text result
@@ -54,7 +54,7 @@ app.post('/query', async (req, res) => {
 
 // Add a debug endpoint that captures console output
 app.post('/query-debug', async (req, res) => {
-    if (!mcpReady) {
+    if (!mcpReady || !mcpModule) {
         return res.status(503).json({ error: 'MCP client not ready.' });
     }
     const { query } = req.body;
@@ -78,7 +78,7 @@ app.post('/query-debug', async (req, res) => {
             originalError.apply(console, args);
         };
         
-        const result = await mcpProcessQuery(query, true);
+        const result = await mcpModule.mcpProcessQuery(query, true);
         
         // Restore console
         console.log = originalLog;

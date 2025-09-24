@@ -78,7 +78,7 @@ class EnhancedMCPClient {
       this.tools = toolsResult.tools.map((tool) => ({
         name: tool.name,
         description: tool.description || "",
-        inputSchema: tool.inputSchema, // <-- fix here
+        input_schema: tool.inputSchema,
       }));
       // Build mapping from sanitized to original tool names
       this.sanitizedToOriginalToolName = {};
@@ -145,7 +145,7 @@ class EnhancedMCPClient {
       tools: this.tools.map(tool => ({
         name: this.sanitizeToolName(tool.name),
         description: tool.description || "",
-        inputSchema: tool.inputSchema // <-- fix here
+        input_schema: tool.input_schema
       }))
     } : {};
 
@@ -246,7 +246,7 @@ class EnhancedMCPClient {
               tools: this.tools.map(tool => ({
                 name: this.sanitizeToolName(tool.name),
                 description: tool.description || "",
-                inputSchema: tool.inputSchema // <-- fix here
+                input_schema: tool.input_schema
               }))
             };
 
