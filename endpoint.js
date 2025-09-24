@@ -124,7 +124,7 @@ app.post('/query-debug', async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`MCP Endpoint listening on port ${PORT}`);
 });

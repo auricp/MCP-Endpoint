@@ -10,13 +10,27 @@ import express from "express";
 import bodyParser from "body-parser";
 import type { Request, Response } from "express";
 
-dotenv.config();
 
-// Check for AWS region
+// Load environment variables with explicit path
+const envResult = dotenv.config({ path: '.env' });
+console.log('dotenv config result:', envResult);
+
+// Check for AWS region with better debugging
 const AWS_REGION = process.env.AWS_REGION;
+console.log('All environment variables:', {
+  AWS_REGION: process.env.AWS_REGION,
+  NODE_ENV: process.env.NODE_ENV,
+  PORT: process.env.PORT
+});
+
 if (!AWS_REGION) {
-  throw new Error("AWS_REGION is not set in .env file");
+  console.error("Environment variables check failed:");
+  console.error("AWS_REGION:", process.env.AWS_REGION);
+  console.error("All env keys:", Object.keys(process.env).filter(key => key.startsWith('AWS')));
+  throw new Error("AWS_REGION is not set in environment variables");
 }
+
+console.log(`Using AWS Region: ${AWS_REGION}`);
 
 // Enhanced tool interface with better typing
 interface Tool {
